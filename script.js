@@ -10,9 +10,51 @@ function createEnemy() {
     enemies.push(enemy);
 }
 
+function enemyShoot(enemy) {
+    const bullet = document.createElement('div');
+    bullet.classList.add('bullet', 'enemyBullet');
+    let enemyLeft = parseInt(window.getComputedStyle(enemy).getPropertyValue("left"));
+    let enemyTop = parseInt(window.getComputedStyle(enemy).getPropertyValue("top"));
+    bullet.style.left = enemyLeft + 20 + 'px'; // Center the bullet on the enemy
+    bullet.style.top = enemyTop + 20 + 'px'; // Adjust so it appears to come from the enemy
+    document.getElementById('gameArea').appendChild(bullet);
+
+    // Enemy bullet movement
+    const interval = setInterval(function() {
+        let bulletTop = parseInt(window.getComputedStyle(bullet).getPropertyValue("top"));
+        if(bulletTop >= 500) {
+            clearInterval(interval);
+            bullet.remove();
+        } else {
+            bullet.style.top = bulletTop + 10 + 'px'; // Move bullet downwards
+
+            // Check for collision with player
+            const player = document.getElementById('player');
+            let playerTop = parseInt(window.getComputedStyle(player).getPropertyValue("top"));
+            let playerLeft = parseInt(window.getComputedStyle(player).getPropertyValue("left"));
+
+            if(bulletTop >= playerTop && bulletTop <= (playerTop + 50) && bullet.style.left === player.style.left) {
+                score -= 10; // Decrement score
+                document.getElementById('score').textContent = `Score: ${score}`; // Update score display
+                bullet.remove(); // Remove the bullet
+                clearInterval(interval); // Stop the bullet's movement
+            }
+        }
+    }, 100);
+}
+
+function initiateEnemyShooting() {
+    enemies.forEach(enemy => {
+        setTimeout(() => {
+            enemyShoot(enemy);
+        }, Math.random() * 3000 + 1000); // Enemies shoot at random times between 1 and 4 seconds
+    });
+}
+
 for(let i = 0; i < 5; i++) { // Adjust number for more or fewer enemies
     createEnemy();
 }
+initiateEnemyShooting();
 
 document.addEventListener('keydown', function(event) {
     const player = document.getElementById('player');
