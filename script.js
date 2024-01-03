@@ -2,6 +2,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 let score = 0;
+let highScore = 0;
 let gameSpeed = 5;
 const gravity = 0.5;
 
@@ -30,6 +31,7 @@ let obstacleTimer = 0;
 let powerUpTimer = 0;
 let obstacleInterval = 200;
 let powerUpInterval = 1000;
+const powerUpTypes = ['scoreBoost', 'slowDown'];
 
 // Handle key presses for jumping
 document.addEventListener('keydown', function(event) {
@@ -40,11 +42,9 @@ document.addEventListener('keydown', function(event) {
 });
 
 function updatePlayer() {
-  // Apply gravity
   player.velocity += gravity;
   player.y += player.velocity;
 
-  // Check if player is on the ground
   if (player.y + player.height > ground.y) {
     player.y = ground.y - player.height;
     player.velocity = 0;
@@ -60,14 +60,16 @@ function drawPlayer() {
 function updateObstacles() {
   if (obstacleTimer > obstacleInterval) {
     const size = Math.random() * (50 - 20) + 20;
+    const type = Math.random() > 0.5 ? 'regular' : 'moving'; // 50% chance for moving obstacle
     obstacles.push({
       x: canvas.width,
-      y: ground.y - size,
+      y: type === 'regular' ? ground.y - size : ground.y - size - Math.random() * 100,
       width: size,
-      height: size
+      height: size,
+      type: type,
+      speed: type === 'moving' ? Math.random() * 2 - 1 : 0 // Random speed for moving obstacles
     });
     obstacleTimer = 0;
-    // Decrease interval to make the game harder over time
     obstacleInterval *= 0.99;
   } else {
     obstacleTimer++;
@@ -75,21 +77,24 @@ function updateObstacles() {
 
   obstacles.forEach(obstacle => {
     obstacle.x -= gameSpeed;
+    if (obstacle.type === 'moving') {
+      obstacle.y += obstacle.speed;
+      // Change direction if it hits ground or an upper limit
+      if (obstacle.y + obstacle.height >= ground.y || obstacle.y <= 100) {
+        obstacle.speed *= -1;
+      }
+    }
 
-    // Collision detection
     if (
       player.x < obstacle.x + obstacle.width &&
       player.x + player.width > obstacle.x &&
       player.y < obstacle.y + obstacle.height &&
       player.y + player.height > obstacle.y
     ) {
-      // End game or reduce player's life
-      console.log("Game Over");
       resetGame();
     }
   });
 
-  // Remove off-screen obstacles
   obstacles = obstacles.filter(obstacle => obstacle.x + obstacle.width > 0);
 }
 
@@ -105,7 +110,8 @@ function updatePowerUps() {
     powerUps.push({
       x: canvas.width,
       y: Math.random() * (ground.y - 50),
-      size: 20
+      size: 20,
+      type: powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)]
     });
     powerUpTimer = 0;
   } else {
@@ -115,28 +121,36 @@ function updatePowerUps() {
   powerUps.forEach((powerUp, index) => {
     powerUp.x -= gameSpeed;
 
-    // Collision detection for power-ups
     if (
       player.x < powerUp.x + powerUp.size &&
       player.x + player.width > powerUp.x &&
       player.y < powerUp.y + powerUp.size &&
       player.y + player.height > powerUp.y
     ) {
-      // Apply power-up effect
-      score += 100; // Example effect: increase score
-      powerUps.splice(index, 1); // Remove power-up
+      applyPowerUpEffect(powerUp.type);
+      powerUps.splice(index, 1);
     }
   });
 
-  // Remove off-screen power-ups
   powerUps = powerUps.filter(powerUp => powerUp.x + powerUp.size > 0);
 }
 
 function drawPowerUps() {
-  ctx.fillStyle = 'yellow';
   powerUps.forEach(powerUp => {
+    ctx.fillStyle = powerUp.type === 'scoreBoost' ? 'yellow' : 'cyan';
     ctx.fillRect(powerUp.x, powerUp.y, powerUp.size, powerUp.size);
   });
+}
+
+function applyPowerUpEffect(type) {
+  if (type === 'scoreBoost') {
+    score += 100;
+  } else if (type === 'slowDown') {
+    gameSpeed = Math.max(2, gameSpeed - 2); // Slow down but not less than 2
+    setTimeout(() => {
+      gameSpeed += 2; // Return to normal speed after 3 seconds
+    }, 3000);
+  }
 }
 
 function drawGround() {
@@ -147,7 +161,8 @@ function drawGround() {
 function drawScore() {
   ctx.fillStyle = 'black';
   ctx.font = '20px Arial';
-  ctx.fillText('Score: ' + score, canvas.width - 150, 30);
+  ctx.fillText('Score: ' + score, 10, 30);
+  ctx.fillText('High Score: ' + highScore, 10, 60);
 }
 
 function gameLoop() {
@@ -161,11 +176,12 @@ function gameLoop() {
   drawPowerUps();
   drawScore();
   score++;
-  gameSpeed += 0.003; // Gradually increase game speed
+  gameSpeed += 0.003;
   requestAnimationFrame(gameLoop);
 }
 
 function resetGame() {
+  highScore = Math.max(score, highScore);
   score = 0;
   gameSpeed = 5;
   obstacles = [];
