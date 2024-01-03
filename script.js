@@ -2,10 +2,11 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 let score = 0;
-let highScore = 0;
+let highScore = localStorage.getItem('highScore') || 0;
 let gameSpeed = 5;
 const gravity = 0.5;
 let lives = 3;
+let gamePaused = false;
 
 const player = {
   x: 100,
@@ -39,10 +40,14 @@ document.addEventListener('keydown', function(event) {
   if (event.key === ' ' && player.grounded) {
     player.velocity = player.superJump ? player.jumpForce * 1.5 : player.jumpForce;
     player.grounded = false;
+  } else if (event.key === 'p' || event.key === 'P') {
+    gamePaused = !gamePaused;
   }
 });
 
 function updatePlayer() {
+  if (gamePaused) return;
+
   player.velocity += gravity;
   player.y += player.velocity;
 
@@ -53,12 +58,9 @@ function updatePlayer() {
   }
 }
 
-function drawPlayer() {
-  ctx.fillStyle = player.color;
-  ctx.fillRect(player.x, player.y, player.width, player.height);
-}
-
 function updateObstacles() {
+  if (gamePaused) return;
+
   if (obstacleTimer > obstacleInterval) {
     const size = Math.random() * (50 - 20) + 20;
     obstacles.push({
@@ -86,7 +88,7 @@ function updateObstacles() {
       if (lives <= 0) {
         resetGame();
       } else {
-        obstacles = []; // Clear obstacles to give the player a fresh start
+        obstacles = [];
       }
     }
   });
@@ -102,6 +104,8 @@ function drawObstacles() {
 }
 
 function updatePowerUps() {
+  if (gamePaused) return;
+
   if (powerUpTimer > powerUpInterval) {
     powerUps.push({
       x: canvas.width,
@@ -174,7 +178,21 @@ function drawScore() {
   ctx.fillText('Lives: ' + lives, 10, 90);
 }
 
+function drawPauseScreen() {
+  ctx.fillStyle = 'rgba(0,0,0,0.5)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = 'white';
+  ctx.font = '30px Arial';
+  ctx.fillText('Game Paused', canvas.width / 2 - 100, canvas.height / 2);
+}
+
 function gameLoop() {
+  if (gamePaused) {
+    drawPauseScreen();
+    requestAnimationFrame(gameLoop);
+    return;
+  }
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawGround();
   updatePlayer();
@@ -190,7 +208,10 @@ function gameLoop() {
 }
 
 function resetGame() {
-  highScore = Math.max(score, highScore);
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem('highScore', highScore);
+  }
   score = 0;
   gameSpeed = 5;
   lives = 3;
@@ -200,6 +221,7 @@ function resetGame() {
   player.velocity = 0;
   obstacleInterval = 200;
   player.superJump = false;
+  gamePaused = false;
 }
 
 requestAnimationFrame(gameLoop);
