@@ -1,52 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <title>Tower Defense Game</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Game Title</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1 class="game-title">Tower Defense Game</h1>
-    </header>
-
-    <main>
-        <div class="game-container">
-            <!-- Game grid elements will be dynamically added here -->
-        </div>
-        
-        <aside class="ui-container">
-            <div class="info-container">
-                <h2>Game Info</h2>
-                <p>Welcome to the Tower Defense Game! Defend against waves of enemies by strategically placing towers.</p>
-            </div>
-            
-            <div class="info-container">
-                <h2>Game Stats</h2>
-                <ul>
-                    <li>Wave: <span id="wave-number">1</span></li>
-                    <li>Enemies Remaining: <span id="enemies-remaining">0</span></li>
-                    <li>Money: <span id="player-money">$100</span></li>
-                </ul>
-            </div>
-            
-            <div class="hot-bar">
-                <h2>Build Towers</h2>
-                <button class="tower-option" data-tower-type="basic">Basic Tower ($20)</button>
-                <button class="tower-option" data-tower-type="rapid">Rapid Tower ($30)</button>
-                <!-- Add more tower options here -->
-            </div>
-            
-            <!-- Build Mode Button -->
-            <button id="build-mode-button" class="build-mode-button">Build Mode: Off</button>
-        </aside>
-    </main>
-
-    <footer>
-        <p>&copy; 2023 Tower Defense Game</p>
-    </footer>
-
-    <script src="game.js"></script>
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+<script src="script.js"></script>
 </body>
 </html>
