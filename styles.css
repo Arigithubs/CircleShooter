@@ -12,15 +12,14 @@ body {
     position: relative;
     width: 800px;
     height: 600px;
-    border: 1px solid black;
   }
   
   #gameCanvas {
     display: block;
-    background: #ddd;
+    background: linear-gradient(#89f7fe, #66a6ff); /* Sky-like gradient background */
   }
   
-  #overlay {
+  .overlay {
     position: absolute;
     top: 0;
     left: 0;
@@ -30,25 +29,37 @@ body {
     justify-content: center;
     align-items: center;
     background: rgba(0, 0, 0, 0.75);
-  }
-  
-  #gameOverScreen {
-    text-align: center;
     color: white;
+    text-align: center;
+    font-size: 1.2em;
   }
   
-  #gameOverScreen h1 {
+  .overlay div {
+    max-width: 70%;
+  }
+  
+  .overlay h1 {
     font-size: 2.5em;
+    margin-bottom: 0.5em;
   }
   
-  #gameOverScreen p {
-    font-size: 1.5em;
+  .overlay p {
+    margin-bottom: 1.5em;
   }
   
-  #restartButton {
+  button {
     padding: 10px 20px;
     font-size: 1em;
     cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
   }
   
   .hidden {
