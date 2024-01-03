@@ -1,39 +1,192 @@
-#gameArea {
-    width: 500px;
-    height: 500px;
-    border: 1px solid black;
+/* Reset some default styles */
+body, h1, h2, p, ul, li {
+    margin: 0;
+    padding: 0;
+}
+
+/* Basic page styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+
+header {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+}
+
+/* Game container styles */
+.game-container {
+    background-color: #f5f5f5;
+    border: 2px solid #aaa;
+    border-radius: 10px;
+    padding: 20px;
+    width: 80%; /* Adjust the width as needed */
+    margin: 0 auto; /* Center horizontally */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+/* UI container styles */
+.ui-container {
+    background-color: #f5f5f5;
+    border: 2px solid #aaa;
+    border-radius: 10px;
+    padding: 20px;
+    width: 18%; /* Adjust the width as needed */
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Info container styles */
+.info-container {
+    margin-bottom: 20px;
+}
+
+.info-container h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+/* Hot bar styles */
+.hot-bar {
+    display: flex;
+    flex-direction: column;
+    background-color: #333;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.tower-option {
+    padding: 10px 20px;
+    background-color: #555;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    transition: background-color 0.3s;
+}
+
+.tower-option:hover {
+    background-color: #777;
+    transform: scale(1.05); /* Slight scale on hover for a better visual effect */
+}
+
+/* Tower styles */
+.tower {
+    width: 40px;
+    height: 60px;
+    background-color: #b0b0b0;
     position: relative;
-    background-color: white;
+    border-radius: 10px;
+    margin: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 1.4rem;
+    color: #333;
+    transition: background-color 0.3s, transform 0.3s;
+    user-select: none;
+    cursor: pointer;
 }
 
-#player {
-    width: 50px;
-    height: 50px;
-    background-color: blue;
-    position: absolute;
-    border: 2px solid black;
-    border-radius: 50%;  /* Makes the div circular */
-}
-
-.enemy {
-    width: 50px;
-    height: 50px;
-    background-color: orange;
-    position: absolute;
-    border: 2px solid black;
-}
-
-.bullet {
+.tower::before {
+    content: "";
     width: 10px;
-    height: 10px;
-    background-color: black;
-    position: absolute;
-    border-radius: 50%;  /* Makes the div circular */
+    height: 40px;
+    background-color: #8a4b08;
+    border-radius: 10px;
+    transition: background-color 0.3s;
 }
 
-#score {
-    position: absolute;
-    top: 10px;
-    left: 10px;
+.tower::after {
+    content: "⚔️";
     font-size: 24px;
+    margin-top: 5px;
 }
+
+/* Additional styles for grid and elements (you can add more) */
+.game-element {
+    width: 50px;
+    height: 50px;
+    border: 2px solid #777;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    user-select: none;
+    cursor: pointer;
+    background-color: #eee;
+    transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+.game-element.placed-tower {
+    background-color: #33cc33;
+    border-color: #009900;
+    box-shadow: 0 0 10px rgba(51, 204, 51, 0.7);
+}
+
+.game-element:hover {
+    background-color: #ffcc00;
+    border-color: #ff9900;
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+    transform: scale(1.05); /* Slight scale on hover for a better visual effect */
+}
+
+/* Enemy styles */
+.enemy {
+    width: 40px;
+    height: 40px;
+    background-color: #ff0000;
+    position: relative;
+    border-radius: 50%;
+    margin: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: white;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.enemy::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    background-color: #990000;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* Wave information styles */
+.wave-info {
+    background-color: #333;
+    color: white;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.wave-info h3 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+/* Example of tower-specific styles (customize as needed) */
+.tower.basic {
+    background-color: #b0b0b0; /* Basic Tower color */
+}
+
+.tower.rapid {
+    background-color: #3366ff; /* Rapid Tower color */
+}
+
+/* ... (other CSS styles) */
