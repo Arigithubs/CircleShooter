@@ -8,8 +8,15 @@
 </head>
 <body>
 <div id="gameContainer">
+    <div id="infoScreen" class="overlay">
+        <div id="infoContent">
+            <h1>Welcome to the Endless Runner!</h1>
+            <p>Use <strong>Spacebar</strong> to jump. Avoid obstacles and collect power-ups!</p>
+            <button id="startButton">Start Game</button>
+        </div>
+    </div>
     <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <div id="overlay" class="hidden">
+    <div id="overlay" class="overlay hidden">
         <div id="gameOverScreen">
             <h1>Game Over</h1>
             <p>Your Score: <span id="finalScore">0</span></p>
