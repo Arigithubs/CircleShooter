@@ -1,4 +1,3 @@
-/* Add your styles here */
 body {
     margin: 0;
     display: flex;
@@ -10,5 +9,6 @@ body {
   
   #gameCanvas {
     border: 1px solid black;
+    background: #ddd; /* A light grey background */
   }
   
