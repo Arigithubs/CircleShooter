@@ -1,78 +1,113 @@
-// Get a reference to the canvas element
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-// Define the player object
 const player = {
-  x: canvas.width / 2 - 25, // X position
-  y: canvas.height / 2 - 50, // Y position
-  width: 50, // Width of the player
-  height: 100, // Height of the player
-  color: 'blue', // Color of the player
-  speed: 5 // Speed of the player
+  x: 100,
+  y: 450,
+  width: 50,
+  height: 50,
+  color: 'blue',
+  gravity: 0.5,
+  velocity: 0,
+  jumpForce: -10,
+  grounded: false
 };
 
-// Listen for keydown events
-document.addEventListener('keydown', function(event) {
-  const key = event.key; // 'ArrowRight', 'ArrowLeft', 'ArrowUp', or 'ArrowDown'
+const ground = {
+  x: 0,
+  y: 500,
+  width: canvas.width,
+  height: 100,
+  color: 'green'
+};
 
-  switch (key) {
-    case 'ArrowLeft':
-      // Move player left
-      player.x -= player.speed;
-      break;
-    case 'ArrowRight':
-      // Move player right
-      player.x += player.speed;
-      break;
-    case 'ArrowUp':
-      // Move player up
-      player.y -= player.speed;
-      break;
-    case 'ArrowDown':
-      // Move player down
-      player.y += player.speed;
-      break;
+const obstacles = [];
+const obstacleWidth = 20;
+const obstacleHeight = 50;
+let obstacleTimer = 0;
+let obstacleInterval = 200; // Adjust this to make the game easier or harder
+
+// Handle key presses for jumping
+document.addEventListener('keydown', function(event) {
+  if (event.key === ' ' && player.grounded) {
+    player.velocity = player.jumpForce;
+    player.grounded = false;
   }
 });
 
-// A function to update game objects
-function update() {
-  // Ensure the player stays within the canvas boundaries
-  if (player.x < 0) player.x = 0;
-  if (player.y < 0) player.y = 0;
-  if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
-  if (player.y + player.height > canvas.height) player.y = canvas.height - player.height;
+function updatePlayer() {
+  // Apply gravity
+  player.velocity += player.gravity;
+  player.y += player.velocity;
+
+  // Check if player is on the ground
+  if (player.y + player.height > ground.y) {
+    player.y = ground.y - player.height;
+    player.velocity = 0;
+    player.grounded = true;
+  }
 }
 
-// A function to render the game
-function render() {
-  // Clear the canvas
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // Draw the player's body
+function drawPlayer() {
   ctx.fillStyle = player.color;
-  ctx.fillRect(player.x, player.y + player.height * 0.4, player.width, player.height * 0.6);
-
-  // Draw the player's head
-  ctx.beginPath();
-  ctx.arc(player.x + player.width / 2, player.y + player.height * 0.2, player.width / 2, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Draw the player's eyes
-  ctx.fillStyle = 'white';
-  ctx.beginPath();
-  ctx.arc(player.x + player.width * 0.35, player.y + player.height * 0.15, player.width / 10, 0, Math.PI * 2);
-  ctx.arc(player.x + player.width * 0.65, player.y + player.height * 0.15, player.width / 10, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.fillRect(player.x, player.y, player.width, player.height);
 }
 
-// A game loop to update and render the game
+function updateObstacles() {
+  // Add new obstacles
+  if (obstacleTimer > obstacleInterval) {
+    obstacles.push({
+      x: canvas.width,
+      y: ground.y - obstacleHeight,
+      width: obstacleWidth,
+      height: obstacleHeight
+    });
+    obstacleTimer = 0;
+  } else {
+    obstacleTimer++;
+  }
+
+  // Move and draw obstacles
+  for (let i = 0; i < obstacles.length; i++) {
+    const obstacle = obstacles[i];
+    obstacle.x -= 5; // Speed of obstacles
+
+    // Collision detection
+    if (
+      player.x < obstacle.x + obstacle.width &&
+      player.x + player.width > obstacle.x &&
+      player.y < obstacle.y + obstacle.height &&
+      player.y + player.height > obstacle.y
+    ) {
+      // End game or reduce player's life
+      console.log("Game Over");
+    }
+  }
+
+  // Remove off-screen obstacles
+  obstacles = obstacles.filter(obstacle => obstacle.x + obstacle.width > 0);
+}
+
+function drawObstacles() {
+  ctx.fillStyle = 'red';
+  obstacles.forEach(obstacle => {
+    ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+  });
+}
+
+function drawGround() {
+  ctx.fillStyle = ground.color;
+  ctx.fillRect(ground.x, ground.y, ground.width, ground.height);
+}
+
 function gameLoop() {
-  update();
-  render();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawGround();
+  updatePlayer();
+  drawPlayer();
+  updateObstacles();
+  drawObstacles();
   requestAnimationFrame(gameLoop);
 }
 
-// Start the game loop
 requestAnimationFrame(gameLoop);
