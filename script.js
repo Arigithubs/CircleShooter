@@ -5,6 +5,7 @@ let score = 0;
 let highScore = 0;
 let gameSpeed = 5;
 const gravity = 0.5;
+let lives = 3;
 
 const player = {
   x: 100,
@@ -14,7 +15,8 @@ const player = {
   color: 'blue',
   velocity: 0,
   jumpForce: -10,
-  grounded: false
+  grounded: false,
+  superJump: false
 };
 
 const ground = {
@@ -31,12 +33,11 @@ let obstacleTimer = 0;
 let powerUpTimer = 0;
 let obstacleInterval = 200;
 let powerUpInterval = 1000;
-const powerUpTypes = ['scoreBoost', 'slowDown'];
+const powerUpTypes = ['scoreBoost', 'slowDown', 'extraLife', 'superJump', 'speedBoost'];
 
-// Handle key presses for jumping
 document.addEventListener('keydown', function(event) {
   if (event.key === ' ' && player.grounded) {
-    player.velocity = player.jumpForce;
+    player.velocity = player.superJump ? player.jumpForce * 1.5 : player.jumpForce;
     player.grounded = false;
   }
 });
@@ -60,14 +61,11 @@ function drawPlayer() {
 function updateObstacles() {
   if (obstacleTimer > obstacleInterval) {
     const size = Math.random() * (50 - 20) + 20;
-    const type = Math.random() > 0.5 ? 'regular' : 'moving'; // 50% chance for moving obstacle
     obstacles.push({
       x: canvas.width,
-      y: type === 'regular' ? ground.y - size : ground.y - size - Math.random() * 100,
+      y: ground.y - size,
       width: size,
-      height: size,
-      type: type,
-      speed: type === 'moving' ? Math.random() * 2 - 1 : 0 // Random speed for moving obstacles
+      height: size
     });
     obstacleTimer = 0;
     obstacleInterval *= 0.99;
@@ -77,13 +75,6 @@ function updateObstacles() {
 
   obstacles.forEach(obstacle => {
     obstacle.x -= gameSpeed;
-    if (obstacle.type === 'moving') {
-      obstacle.y += obstacle.speed;
-      // Change direction if it hits ground or an upper limit
-      if (obstacle.y + obstacle.height >= ground.y || obstacle.y <= 100) {
-        obstacle.speed *= -1;
-      }
-    }
 
     if (
       player.x < obstacle.x + obstacle.width &&
@@ -91,7 +82,12 @@ function updateObstacles() {
       player.y < obstacle.y + obstacle.height &&
       player.y + player.height > obstacle.y
     ) {
-      resetGame();
+      lives--;
+      if (lives <= 0) {
+        resetGame();
+      } else {
+        obstacles = []; // Clear obstacles to give the player a fresh start
+      }
     }
   });
 
@@ -137,7 +133,7 @@ function updatePowerUps() {
 
 function drawPowerUps() {
   powerUps.forEach(powerUp => {
-    ctx.fillStyle = powerUp.type === 'scoreBoost' ? 'yellow' : 'cyan';
+    ctx.fillStyle = powerUp.type === 'scoreBoost' ? 'yellow' : powerUp.type === 'slowDown' ? 'cyan' : powerUp.type === 'extraLife' ? 'pink' : powerUp.type === 'superJump' ? 'purple' : 'orange';
     ctx.fillRect(powerUp.x, powerUp.y, powerUp.size, powerUp.size);
   });
 }
@@ -146,10 +142,22 @@ function applyPowerUpEffect(type) {
   if (type === 'scoreBoost') {
     score += 100;
   } else if (type === 'slowDown') {
-    gameSpeed = Math.max(2, gameSpeed - 2); // Slow down but not less than 2
+    gameSpeed = Math.max(2, gameSpeed - 2);
     setTimeout(() => {
-      gameSpeed += 2; // Return to normal speed after 3 seconds
+      gameSpeed += 2;
     }, 3000);
+  } else if (type === 'extraLife') {
+    lives++;
+  } else if (type === 'superJump') {
+    player.superJump = true;
+    setTimeout(() => {
+      player.superJump = false;
+    }, 5000);
+  } else if (type === 'speedBoost') {
+    gameSpeed += 3;
+    setTimeout(() => {
+      gameSpeed -= 3;
+    }, 5000);
   }
 }
 
@@ -163,6 +171,7 @@ function drawScore() {
   ctx.font = '20px Arial';
   ctx.fillText('Score: ' + score, 10, 30);
   ctx.fillText('High Score: ' + highScore, 10, 60);
+  ctx.fillText('Lives: ' + lives, 10, 90);
 }
 
 function gameLoop() {
@@ -184,11 +193,13 @@ function resetGame() {
   highScore = Math.max(score, highScore);
   score = 0;
   gameSpeed = 5;
+  lives = 3;
   obstacles = [];
   powerUps = [];
   player.y = 450;
   player.velocity = 0;
   obstacleInterval = 200;
+  player.superJump = false;
 }
 
 requestAnimationFrame(gameLoop);
