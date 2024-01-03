@@ -208,20 +208,28 @@ function gameLoop() {
 }
 
 function resetGame() {
-  if (score > highScore) {
-    highScore = score;
-    localStorage.setItem('highScore', highScore);
+    if (score > highScore) {
+      highScore = score;
+      localStorage.setItem('highScore', highScore);
+    }
+    score = 0;
+    gameSpeed = 5;
+    lives = 3;
+    obstacles = [];
+    powerUps = [];
+    player.y = 450;
+    player.velocity = 0;
+    obstacleInterval = 200;
+    player.superJump = false;
+    gamePaused = false;
+    document.getElementById('finalScore').innerText = score;
+    document.getElementById('overlay').classList.remove('hidden');
   }
-  score = 0;
-  gameSpeed = 5;
-  lives = 3;
-  obstacles = [];
-  powerUps = [];
-  player.y = 450;
-  player.velocity = 0;
-  obstacleInterval = 200;
-  player.superJump = false;
-  gamePaused = false;
-}
-
-requestAnimationFrame(gameLoop);
+  
+  document.getElementById('restartButton').addEventListener('click', function() {
+    document.getElementById('overlay').classList.add('hidden');
+    requestAnimationFrame(gameLoop);
+  });
+  
+  requestAnimationFrame(gameLoop);
+  
