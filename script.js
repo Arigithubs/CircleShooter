@@ -6,7 +6,7 @@ let highScore = localStorage.getItem('highScore') || 0;
 let gameSpeed = 5;
 const gravity = 0.5;
 let lives = 3;
-let gamePaused = false;
+let gameActive = false;
 
 const player = {
   x: 100,
@@ -25,7 +25,7 @@ const ground = {
   y: 500,
   width: canvas.width,
   height: 100,
-  color: 'green'
+  color: '#654321' // A brown-like color for ground
 };
 
 let obstacles = [];
@@ -37,16 +37,14 @@ let powerUpInterval = 1000;
 const powerUpTypes = ['scoreBoost', 'slowDown', 'extraLife', 'superJump', 'speedBoost'];
 
 document.addEventListener('keydown', function(event) {
-  if (event.key === ' ' && player.grounded) {
+  if (event.key === ' ' && player.grounded && gameActive) {
     player.velocity = player.superJump ? player.jumpForce * 1.5 : player.jumpForce;
     player.grounded = false;
-  } else if (event.key === 'p' || event.key === 'P') {
-    gamePaused = !gamePaused;
   }
 });
 
 function updatePlayer() {
-  if (gamePaused) return;
+  if (!gameActive) return;
 
   player.velocity += gravity;
   player.y += player.velocity;
@@ -59,7 +57,7 @@ function updatePlayer() {
 }
 
 function updateObstacles() {
-  if (gamePaused) return;
+  if (!gameActive) return;
 
   if (obstacleTimer > obstacleInterval) {
     const size = Math.random() * (50 - 20) + 20;
@@ -104,7 +102,7 @@ function drawObstacles() {
 }
 
 function updatePowerUps() {
-  if (gamePaused) return;
+  if (!gameActive) return;
 
   if (powerUpTimer > powerUpInterval) {
     powerUps.push({
@@ -170,6 +168,11 @@ function drawGround() {
   ctx.fillRect(ground.x, ground.y, ground.width, ground.height);
 }
 
+function drawPlayer() {
+  ctx.fillStyle = player.color;
+  ctx.fillRect(player.x, player.y, player.width, player.height);
+}
+
 function drawScore() {
   ctx.fillStyle = 'black';
   ctx.font = '20px Arial';
@@ -186,12 +189,40 @@ function drawPauseScreen() {
   ctx.fillText('Game Paused', canvas.width / 2 - 100, canvas.height / 2);
 }
 
-function gameLoop() {
-  if (gamePaused) {
-    drawPauseScreen();
-    requestAnimationFrame(gameLoop);
-    return;
+document.getElementById('startButton').addEventListener('click', function() {
+  document.getElementById('infoScreen').classList.add('hidden');
+  gameActive = true;
+  requestAnimationFrame(gameLoop);
+});
+
+document.getElementById('restartButton').addEventListener('click', function() {
+  document.getElementById('overlay').classList.add('hidden');
+  resetGame();
+  gameActive = true;
+  requestAnimationFrame(gameLoop);
+});
+
+function resetGame() {
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem('highScore', highScore);
   }
+  score = 0;
+  gameSpeed = 5;
+  lives = 3;
+  obstacles = [];
+  powerUps = [];
+  player.y = 450;
+  player.velocity = 0;
+  obstacleInterval = 200;
+  player.superJump = false;
+  gameActive = false;
+  document.getElementById('finalScore').innerText = score;
+  document.getElementById('overlay').classList.remove('hidden');
+}
+
+function gameLoop() {
+  if (!gameActive) return;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawGround();
@@ -207,29 +238,4 @@ function gameLoop() {
   requestAnimationFrame(gameLoop);
 }
 
-function resetGame() {
-    if (score > highScore) {
-      highScore = score;
-      localStorage.setItem('highScore', highScore);
-    }
-    score = 0;
-    gameSpeed = 5;
-    lives = 3;
-    obstacles = [];
-    powerUps = [];
-    player.y = 450;
-    player.velocity = 0;
-    obstacleInterval = 200;
-    player.superJump = false;
-    gamePaused = false;
-    document.getElementById('finalScore').innerText = score;
-    document.getElementById('overlay').classList.remove('hidden');
-  }
-  
-  document.getElementById('restartButton').addEventListener('click', function() {
-    document.getElementById('overlay').classList.add('hidden');
-    requestAnimationFrame(gameLoop);
-  });
-  
-  requestAnimationFrame(gameLoop);
-  
+requestAnimationFrame(gameLoop);
